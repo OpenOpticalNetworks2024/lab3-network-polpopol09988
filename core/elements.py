@@ -79,7 +79,7 @@ class Node(object):
 
     def propagate(self,signal):
         if(len(signal.path)>=2):
-            nextline = signal.path[0:1]
+            nextline = signal.path[0:2]
             signal.update_path()
             self.successive[nextline].propagate(signal)
 
@@ -108,7 +108,7 @@ class Line(object):
 
     # 2/3*c = l/t ->  t = l*3/2*c
     def latency_generation(self):
-        return self._length*3/2*c
+        return self._length*3/2/3e8
 
     def noise_generation(self, signal_power):
         return 1e-9*signal_power*self._length
@@ -228,4 +228,4 @@ class Network(object):
     # propagate signal_information through path specified in it
     # and returns the modified spectral information
     def propagate(self, signal_information):
-        pass
+        self.nodes[signal_information.path[0]].propagate(signal_information)

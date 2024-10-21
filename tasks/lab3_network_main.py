@@ -23,12 +23,33 @@ file_input = INPUT_FOLDER / 'nodes.json'
 
 a=Network(file_input)
 a.connect()
-for wl in a.lines:
-    print(wl, a.lines[wl].length, a.lines[wl].successive)
+#for wl in a.lines:
+    #print(wl, a.lines[wl].length, a.lines[wl].successive)
 
-for nodo in a.nodes:
-    print(nodo, a.nodes[nodo].successive)
+#for nodo in a.nodes:
+    #print(nodo, a.nodes[nodo].successive)
 
-print(a.find_paths('D','B'))
-a.draw()
+#print(a.find_paths('D','B'))
 
+#a.draw()
+
+#creo possible couples
+lista_nodi = a.nodes.keys()
+lista_percorsi = list()
+for nodo in lista_nodi:
+    for nodo2 in lista_nodi:
+        if nodo != nodo2:
+            tmp = nodo+nodo2
+            lista_percorsi.append(tmp)
+
+
+for percorso in lista_percorsi:
+    paths = a.find_paths(percorso[0], percorso[1])
+    for path in paths:
+        s = Signal_information(1e-3,path)
+        for letter in path[:-1]:
+            pass
+            print(letter+'->', end="")
+        print(path[-1], end="")
+        a.propagate(s)
+        print(", latenza: "+ str(s.latency))
