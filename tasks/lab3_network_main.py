@@ -52,4 +52,9 @@ for percorso in lista_percorsi:
             print(letter+'->', end="")
         print(path[-1], end="")
         a.propagate(s)
-        print(", latenza: "+ str(s.latency))
+        print(", latenza: "+ str(s.latency), end ="")
+        print(", noise: "+ str(s.noise_power), end ="")
+        snr = 10 * np.log10(s.signal_power/s.noise_power)
+        print(", SNR: "+ str(snr))
+
+#manca solo il pandas

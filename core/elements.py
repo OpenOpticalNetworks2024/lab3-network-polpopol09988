@@ -111,10 +111,12 @@ class Line(object):
         return self._length*3/2/3e8
 
     def noise_generation(self, signal_power):
+
         return 1e-9*signal_power*self._length
 
     def propagate(self,signal):
-        signal.update_noise_power(self.noise_generation(signal.noise_power))
+
+        signal.update_noise_power(self.noise_generation(signal.signal_power))
         signal.update_latency(self.latency_generation())
         self.successive[signal.path[0]].propagate(signal)
 
