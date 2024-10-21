@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
 from core.elements import Signal_information
+from core.elements import Node
+from core.elements import Line
+from core.elements import Network
 
 # Exercise Lab3: Network
 
@@ -18,7 +21,14 @@ file_input = INPUT_FOLDER / 'nodes.json'
 # Follow all the instructions in README.md file
 
 
-a = Signal_information(10,"ABC")
-a.path = "ciao"
-a.update_path()
-print(a.path)
+a=Network(file_input)
+a.connect()
+for wl in a.lines:
+    print(wl, a.lines[wl].length, a.lines[wl].successive)
+
+for nodo in a.nodes:
+    print(nodo, a.nodes[nodo].successive)
+
+print(a.find_paths('D','B'))
+a.draw()
+
