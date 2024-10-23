@@ -15,6 +15,7 @@ INPUT_FOLDER = ROOT / 'resources'
 OUTPUT_FOLDER = ROOT / 'results'
 file_input = INPUT_FOLDER / 'nodes.json'
 file_output = OUTPUT_FOLDER / 'out.csv'
+foto_output = OUTPUT_FOLDER / 'draw.png'
 
 
 # Load the Network from the JSON file, connect nodes and lines in Network.
@@ -23,20 +24,20 @@ file_output = OUTPUT_FOLDER / 'out.csv'
 # Follow all the instructions in README.md file
 
 
-a=Network(file_input)
+a = Network(file_input)
 a.connect()
-#prove varie in fase di debug
-#for wl in a.lines:
-    #print(wl, a.lines[wl].length, a.lines[wl].successive)
+# prove varie in fase di debug
+# for wl in a.lines:
+#     print(wl, a.lines[wl].length, a.lines[wl].successive)
 
-#for nodo in a.nodes:
-    #print(nodo, a.nodes[nodo].successive)
+# for nodo in a.nodes:
+#     print(nodo, a.nodes[nodo].successive)
 
-#print(a.find_paths('D','B'))
+# print(a.find_paths('D','B'))
 
-a.draw()
+a.draw(foto_output)
 
-#creo possible couples
+# creo possible couples
 lista_nodi = a.nodes.keys()
 lista_percorsi = list()
 for nodo in lista_nodi:
@@ -57,20 +58,16 @@ for percorso in lista_percorsi:
         s = Signal_information(1e-3, path)
         for letter in path[:-1]:
             pass
-            stringa = stringa+letter+"->"
-            #print(letter+'->', end="")
-        #print(path[-1], end="")
+            stringa = stringa+letter + "->"
         stringa = stringa+path[-1]
         pathstring.append(stringa)
         a.propagate(s)
-        #print(", latenza: " + str(s.latency), end="")
         latencystring.append(str(s.latency))
-        #print(", noise: " + str(s.noise_power), end="")
         noisestring.append(str(s.noise_power))
         snr = 10 * np.log10(s.signal_power/s.noise_power)
-        #print(", SNR: " + str(snr))
         snrstring.append(str(snr))
-#manca solo il pandas
+
+# manca solo il pandas
 data = {
     "path": pathstring,
     "latency": latencystring,
@@ -79,4 +76,3 @@ data = {
 }
 df = pd.DataFrame(data)
 df.to_csv(file_output, index=False)
-

@@ -2,6 +2,7 @@ import json
 from core.parameters import c
 import matplotlib.pyplot as plt
 
+
 class Signal_information(object):
     def __init__(self, signal_power, path):
         self._signal_power = signal_power
@@ -13,7 +14,7 @@ class Signal_information(object):
     def signal_power(self):
         return self._signal_power
 
-    def update_signal_power(self,increment):
+    def update_signal_power(self, increment):
         self._signal_power += increment
 
     @property
@@ -24,7 +25,7 @@ class Signal_information(object):
     def noise_power(self, value):
         self._noise_power = value
 
-    def update_noise_power(self,increment):
+    def update_noise_power(self, increment):
         self._noise_power += increment
 
     @property
@@ -32,10 +33,10 @@ class Signal_information(object):
         return self._latency
 
     @latency.setter
-    def latency(self,value):
+    def latency(self, value):
         self._latency = value
 
-    def update_latency(self,increment):
+    def update_latency(self, increment):
         self.latency += increment
 
     @property
@@ -43,7 +44,7 @@ class Signal_information(object):
         return self._path
 
     @path.setter
-    def path(self,stringa):
+    def path(self, stringa):
         self._path = stringa
 
     def update_path(self):
@@ -51,7 +52,7 @@ class Signal_information(object):
 
 
 class Node(object):
-    def __init__(self,nodo_diz,label):
+    def __init__(self, nodo_diz, label):
         self._label = label
         self._position = nodo_diz["position"]
         self._connected_nodes = nodo_diz["connected_nodes"]
@@ -74,11 +75,11 @@ class Node(object):
         return self._successive
 
     @successive.setter
-    def successive(self,line):
+    def successive(self, line):
         self._successive = line
 
-    def propagate(self,signal):
-        if(len(signal.path)>=2):
+    def propagate(self, signal):
+        if len(signal.path) >= 2:
             nextline = signal.path[0:2]
             signal.update_path()
             self.successive[nextline].propagate(signal)
@@ -108,13 +109,12 @@ class Line(object):
 
     # 2/3*c = l/t ->  t = l*3/2*c
     def latency_generation(self):
-        return self._length*3/2/3e8
+        return self._length*3/2/c
 
     def noise_generation(self, signal_power):
-
         return 1e-9*signal_power*self._length
 
-    def propagate(self,signal):
+    def propagate(self, signal):
 
         signal.update_noise_power(self.noise_generation(signal.signal_power))
         signal.update_latency(self.latency_generation())
@@ -122,14 +122,14 @@ class Line(object):
 
 
 class Network(object):
-    def __init__(self,infile):
+    def __init__(self, infile):
         self._nodes = dict()
         self._lines = dict()
         with open(infile, mode="r", encoding="utf-8") as read_file:
             a = json.load(read_file)
         for el in a:
             if el not in self._nodes:
-                self._nodes[el] = Node(a[el],el)
+                self._nodes[el] = Node(a[el], el)
         for nodo in a:
             for nextnodo in a[nodo]["connected_nodes"]:
                 linelabel = nodo+nextnodo
@@ -137,8 +137,7 @@ class Network(object):
                     deltax = a[nodo]["position"][0]-a[nextnodo]["position"][0]
                     deltay = a[nodo]["position"][1]-a[nextnodo]["position"][1]
                     length = (deltax**2+deltay**2)**(1/2)
-                    self._lines[linelabel] = Line(linelabel,length)
-
+                    self._lines[linelabel] = Line(linelabel, length)
 
     @property
     def nodes(self):
@@ -148,18 +147,20 @@ class Network(object):
     def lines(self):
         return self._lines
 
-    def draw(self):
+    def draw(self, file_out=None):
+        if file_out is None:
+            file_out = []
         for node in self.nodes:
             x = self.nodes[node].position[0]
             y = self.nodes[node].position[1]
-            plt.scatter(x,y)
+            plt.scatter(x, y)
             plt.text(x, y, node, fontsize=12, verticalalignment='bottom', horizontalalignment='right')
             for riga in self.nodes[node].connected_nodes:
                 x2 = self.nodes[riga].position[0]
                 y2 = self.nodes[riga].position[1]
-                plt.plot([x,x2],[y,y2],'k')
-
-
+                plt.plot([x, x2], [y, y2], 'k')
+        if file_out:
+            plt.savefig(file_out)
         plt.show()
 
     # find_paths: given two node labels, returns all paths that connect the 2 nodes
@@ -201,21 +202,22 @@ class Network(object):
     #                     tmp = tmp[:-1]
     #         tmp = tmp[:-1]
     #     return paths
-    def find_paths(self, label1, label2, paths=list()):
+    def find_paths(self, label1, label2, paths=None):
+        if paths is None:
+            paths = []
         depth = len(label1)
         if depth > len(self.nodes):
             return
         else:
             for el in self.nodes[label1[-1]].connected_nodes:
                 if el not in label1:
-                    label1=label1+el
+                    label1 = label1+el
                     if(el == label2) & (label1 not in paths):
                         paths.append(label1)
                     else:
-                        self.find_paths(label1,label2,paths)
+                        self.find_paths(label1, label2, paths)
                     label1 = label1[:-1]
         return paths
-
 
     # connect function set the successive attributes of all NEs as dicts
     # each node must have dict of lines and viceversa
@@ -225,7 +227,7 @@ class Network(object):
         for nodo in self.nodes:
             for line in self.lines:
                 if line[0] == nodo:
-                    self.nodes[nodo].successive[line]=self.lines[line]
+                    self.nodes[nodo].successive[line] = self.lines[line]
 
     # propagate signal_information through path specified in it
     # and returns the modified spectral information
