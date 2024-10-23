@@ -153,12 +153,14 @@ class Network(object):
         for node in self.nodes:
             x = self.nodes[node].position[0]
             y = self.nodes[node].position[1]
-            plt.scatter(x, y)
+            plt.scatter(x, y, linewidth=5)
             plt.text(x, y, node, fontsize=12, verticalalignment='bottom', horizontalalignment='right')
             for riga in self.nodes[node].connected_nodes:
                 x2 = self.nodes[riga].position[0]
                 y2 = self.nodes[riga].position[1]
                 plt.plot([x, x2], [y, y2], 'k')
+            plt.xlabel("X, [m]")
+            plt.ylabel("Y, [m]")
         if file_out:
             plt.savefig(file_out)
         plt.show()
