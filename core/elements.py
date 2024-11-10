@@ -160,6 +160,7 @@ class Network(object):
                 y2 = self.nodes[riga].position[1]
                 plt.plot([x, x2], [y, y2], 'k')
             plt.xlabel("X, [m]")
+
             plt.ylabel("Y, [m]")
         if file_out:
             plt.savefig(file_out)
@@ -235,3 +236,4 @@ class Network(object):
     # and returns the modified spectral information
     def propagate(self, signal_information):
         self.nodes[signal_information.path[0]].propagate(signal_information)
+        return signal_information
